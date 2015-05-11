@@ -18,9 +18,11 @@ import stagger
 def copyMusic(targetPath, sourcePath):
     for root, dir, files in os.walk(sourcePath):
         for file in files:
-            if file.endswith('.id3'):
+            try:
                 tag = stagger.read_tag(os.path.join(root, file))
-                print(tag.title)
+                print(tag)
+            except:
+                print('Error on filename:', file)
 
 def main():
     print('   ###########################################\n'
