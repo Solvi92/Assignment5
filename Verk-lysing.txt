@@ -1,0 +1,103 @@
+Assignment 5
+
+This assignment consists of two parts. The first part contains three relatively well specified problems. You should solve two of these problems. For the second part of this assignment you will solve a large, open ended, project. This assignment provides three suggestions for projects. You are also free and encouraged to come up with your own project. You must, however, get an approval of your project from me (Hjalti) either by email or in class.
+
+You are allowed to work on this assignment in groups of two. You should hand in a zip file containing your implementation. The zip file should contain folder for each of the two problems in Part 1 and another folder for the project. Each folder should contain a README file that gives a description of how to run your script, and an example of how to run your script. You should also include which PyPI packages are needed, and other dependencies, if necessary. If you have added features that are not in the problem description, you should also describe them. The problem folder should also contain any test data needed to make the examples run.
+
+Part 1 (30%)
+
+In this part you are given three relatively well specified problems. For full marks you will have to solve two problems, weighing 15% each. Solving a third problem will not increase your grade.
+
+You are free to solve the problems any way you like. In fact, if you come up with ideas for extensions of the problems, or new ways to solve the problems specified, I encourage you to implement them. The grading of this assignment will be on the scale of 0--10.
+
+Grading for this problem will be as follows
+
+(80%) Implementing the behaviour given in the problem description.
+(10%) Usability, coding style, etc.
+(10%) Additional features
+Note that implementing additional features for one of the two problems is enough for getting full marks for that part.
+
+iPod Piracy (arrrr)
+
+Have you ever wanted to copy your music files on your iPod onto your computer? Then you may have taken a look inside your iPod's hard drive and realised that the music files are stored in a weird format. Each music file has a garbled file name, stored in some directory, and there seems to be no way to know which music file contains which song.
+
+Fortunately for us, each music file has hidden metadata, containing information such as the name of the artist, the title of the song, and the name of the album. This metadata is contained in ID3, which is a metadata container stored in the music file.
+
+In this problem you will be given a directory, let's call it source, full of (empty) music files taken directly off an iPod's hard drive. Your job is to create a Python script that copies the files into another directory, let's call it target, with the following format.
+
+The root of target should contain a directory for each artist. Each artist directory should contain a directory for each album by the artist. And finally, each album directory should contain the actual songs on that album. The filename of each song should contain the track number of that song, followed by a hyphen and then the title of the song.
+
+For example, consider the following music files in the source folder, along with their respective metadata.
+
+source/     F00/         HECA.mp3             title: Oops I Did It Again             artist: Britney Spears             album: Give It To Me Baby             track: 2         CADX.mp3             title: Miaooooow             artist: Britney Spears             album: Give It To Me Baby             track: 1     F01/         WVAF.mp3             title: Uppí sveit             artist: Hvanndalsbræður             album: Hrútleiðinlegir             track: 5
+After running the Python script on the above source directory, the target directory should be as follows:
+
+target/     Britney Spears/         Give It To Me Baby/             1 - Miaooooow.mp3             2 - Oops I Did It Again.mp3     Hvanndalsbræður/         Hrútleiðinlegir/             5 - Uppí sveit.mp3
+The stagger package might be helpful in this problem.
+
+Submit to MySchool
+
+Create a script that hands in an assignment in MySchool. The script should take files (if applicable), a comment to the teacher and the URL of the assignment’s web page. So, for example, if you call your script myschool_submit.py, and you want to hand in this assignment, the script could possibly be called as follows
+
+python3 myschool_submit.py -f verk5.zip -c “Kláraði verkefnið! ^_^” https://myschool.ru.is/myschool/?Page=LMS&ID=16&fagID=25602&View=52&ViewMode=1&verkID=41566&Tab=1
+Note that the name of the script, and how the parameters are provided are completely up to you. This is just an example of how it might look.
+
+Possible additional features you can implement:
+
+Allow the user to select group members (by kennitala or name).
+Allow the user to select an assignment by the name (or part of the name) of the course and the name of the assignment. (Or even just the name of the assignment (if it is unique).
+Provide the user with a list of all courses. Then allow the user to select a course, and allow him to select an assignment from the course to hand in.
+Note
+
+HTML forms that allow files to be uploaded, have the enctype attribute set to multipart/form-data, which specifies how the form data should be encoded when submitted to the server. However, the requests library only encodes the data in this way if you specify a file to upload. If you only want to submit a comment to an assignment, and no files, then you must also submit an empty file to force the requests library to encode the data correctly. You can do this, for example, by including the named parameter files={ 'FILE': ('', '') } in the post request.
+
+Who’s popular
+
+The Internet Movie Database (IMDb) provides a list of their top 250 movies of all times. Create a Python script that goes through all of these 250 movies and finds the cast of each movie. The script should then print out which actors appear most in these movies. The user should be able to control how many actors, at most, are printed (so you can for example ask to see only the top 10 or top 20). The user should also be able to filter the movies by year, or at least ask the script to only include movies that were released after a given year. The format of the output is completely up to you. You can print the actors in descending order, by the number of movies they have appeared in. You can also include the number of movies they have appeared in or even list the movies.
+
+Projcet (70%)
+
+In this part of the assignment you will work on a large project. This assignment gives three ideas for projects, but you are allowed to come up with ideas of you own. However, if you do so, it must be approved by me (Hjalti).
+
+Note that these are just rough ideas. You are free to take your own approach to them. In fact, if you come up with ideas for extensions of the projects, or new ways to solve the problems stated in them, I encourage you to implement them. The grading of this assignment will be on the scale of 0--10.
+
+Grading for the project will be as follows
+
+(90%) Implementation and scope of the project
+(10%) Usability, coding style, etc.
+Mini Mooshak
+
+Create a website using Flask (or any other Python web framework you like), where you can submit solutions to given problems.
+
+When a problem is specified, the server should contain test cases, and ideally their correct output.
+
+When submitting a solution, a file containing C++ code is uploaded. The server compiles the code, runs it on the test cases and compares the output of the given program to the correct program. The submitter should then be presented with the results.
+
+Further ideas
+
+Return the output from the standard output, standard error and exit code the submitter's program.
+Allow users to submit their own problems.
+Show diff if solution is not correct (difflib might come in handy here).
+Run solutions through valgrind to identify memory errors (only works on Linux).
+Allow the use of more languages than C++ (for example Python!).
+You can use the following HTML post the code file and the input.
+
+<!doctype html> <html>     <head>         <title>Upload a C++ file</title>     </head> <body>     <h1>Upload a file to compile and run</h1>     <form action="" method="post" enctype="multipart/form-data">     <p> <input type="file" name="file"><br/>         <input type="submit" value="Upload"> </p>     </form>     </body> </html>
+Game
+
+Write a GUI for a game, such as Othello (Reversi) or Mastermind, using TkInter (or any other python GUI).
+
+Further ideas
+
+Allow both games between two human players and between a human player and an AI.
+Allow users to play over the internet (e.g., using socketserver).
+Exam generation
+
+Create a system that can generate random exams from a pool of questions. The questions can be specified in any format such as yaml or json, or even in a custom format. The questions could either be multiple choice or possibly even essay questions.
+
+The generated exam could either be a PDF document (generated using LaTeX) or a HTML web page.
+
+Further ideas
+
+Implement a web server that allows users to take the randomly generated exam
+Implement a web server that allows users to add questions to the pool
