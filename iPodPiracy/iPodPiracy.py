@@ -18,9 +18,12 @@ def copyMusic(targetPath, sourcePath):
     for root, dir, files in os.walk(sourcePath):
         for file in files:
             try:
-
                 tag = stagger.read_tag(os.path.join(root, file))
-                songPath = os.path.join(targetPath, tag.artist, tag.album)
+                album = tag.album.replace('/','').replace('\\', '').replace('?','').replace('*','')\
+                    .replace(':','').replace('"','').replace('>','').replace('<','').replace('|','').strip()
+                artist = tag.artist.replace('/','').replace('\\', '').replace('?','').replace('*','')\
+                    .replace(':','').replace('"','').replace('>','').replace('<','').replace('|','').strip()
+                songPath = os.path.join(targetPath, artist, album)
                 if not os.path.exists(songPath):
                     os.makedirs(songPath)
                 filename, extension = os.path.splitext(os.path.join(root,file))
@@ -29,12 +32,15 @@ def copyMusic(targetPath, sourcePath):
                     newFileName = str(tag.track) + ' - ' + tag.title + extension
                 else:
                     newFileName = tag.title + extension
+
+                newFileName = newFileName.replace('/','').replace('\\', '').replace('?','').replace('*','')\
+                    .replace(':','').replace('"','').replace('>','').replace('<','').replace('|','').strip()
+
                 os.rename(os.path.join(root, file), os.path.join(root, newFileName))
                 shutil.copy(os.path.join(root, newFileName), os.path.join(songPath, newFileName))
                 os.rename(os.path.join(root, newFileName), os.path.join(root, file))
-            except:
+            except :
                 pass
-                #print('Error on filename:', file)
 
 def main():
     print('   ###########################################\n'
@@ -48,6 +54,7 @@ def main():
     superSorter = 1
 
     while superSorter != 0:
+
         sourceFolder = input('-> Input the complete path of the folder to copy\n')
         while not os.path.exists(os.path.abspath(sourceFolder)):
             sourceFolder = input('-> Must be a valid path, please try again \n')
@@ -57,8 +64,8 @@ def main():
             targetFolder = input('-> Must be a valid path, please try again \n')
         targetFolder = os.path.join(targetFolder, '_music')
 
-        #targetFolder = r'C:\Users\Lenovo\Documents\GitHub\Assignment5\iPod Piracy\Target'
-        #sourceFolder = r'C:\Users\Lenovo\Documents\GitHub\Assignment5\iPod Piracy\ipod'
+        #targetFolder = r'C:\Users\Lenovo\Documents\GitHub\Assignment5\iPodPiracy\Target'
+        #sourceFolder = r'C:\Users\Lenovo\Documents\GitHub\Assignment5\iPodPiracy\ipod'
         print('-> Copying...')
         copyMusic(targetFolder, sourceFolder)
         print('-> Done.')
