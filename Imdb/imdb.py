@@ -1,6 +1,5 @@
 import requests as r
 from bs4 import BeautifulSoup as bs
-import re
 
 def main():
     inp = input('From year:\n')
