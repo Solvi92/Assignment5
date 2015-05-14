@@ -1,6 +1,30 @@
 import tkinter as tk
 import random
 
+gameType = 'onePlayer'
+
+class Menu(tk.Frame):
+    def __init__(self, master=None):
+        tk.Frame.__init__(self, master)
+        self.game = None
+        self.button = tk.Button(self, text="One Player",
+                                command=self.onePlayer)
+        self.button.pack(side="top")
+        self.button = tk.Button(self, text="Two Player",
+                                command=self.twoPlayer)
+        self.button.pack(side="top")
+        self.pack()
+
+    def onePlayer(self):
+        if not self.game == None:
+            self.game.destroy()
+        gameType = 'onePlayer'
+        self.game = Game(master=tk.Tk())
+
+    def twoPlayer(self):
+        gameType = 'twoPlayer'
+        self.game = Game(master=tk.Tk())
+
 class Game(tk.Frame):
     def __init__(self, master=None):
         tk.Frame.__init__(self, master)
@@ -95,6 +119,7 @@ class Game(tk.Frame):
             self.pin.grid(row=12, column=row,padx=3,pady=3)
             self.mainButtons.append(self.pin)
             print(self.mainColorArray[row])
+
 root = tk.Tk()
-game = Game(master=root)
+game = Menu(master=root)
 game.mainloop()
