@@ -5,9 +5,11 @@ class Game(tk.Frame):
     def __init__(self, master=None):
         tk.Frame.__init__(self, master)
         # initialize the window
+                          #color, active
         self.buttonArray = [[[-1,1] for x in range(4)] for x in range(12)] # the game board which is 4x12
         self.mainColorArray = [-1,-1,-1,-1] # This is where the correct colors is displayed or selected
         self.mainButtons = []
+        self.mainButtonFound = [0,0,0,0]
         self.currentRow = 0 # turn counter
         self.colorArray = ['yellow','red','green','blue','purple'] # possible colors
 
@@ -25,7 +27,7 @@ class Game(tk.Frame):
         #changes the color of the 'button' after a click event is created
         def colorCallback():
             if self.buttonArray[row][col][1] == 0:
-                return # the button should be inactive
+                return # the button is inactive
             colorNumber = self.buttonArray[row][col][0]
             colorNumber = (colorNumber + 1) % 5
             self.buttonArray[row][col][0] = colorNumber
@@ -50,6 +52,7 @@ class Game(tk.Frame):
                 for x in range(4):
                     if self.buttonArray[self.currentRow][x][0] == self.mainColorArray[x]:
                         self.mainButtons[x].configure(bg = self.colorArray[self.mainColorArray[x]])
+                        self.mainButtonFound[x] = 1
                     else:
                         hasWon = False
                     self.buttonArray[self.currentRow][x][1] = 0 # make the row that was just finished inactive
@@ -67,7 +70,12 @@ class Game(tk.Frame):
             for col in range(4):
                 buttonColor = self.colorArray[self.buttonArray[row][col][0]]
                 if self.buttonArray[row][col][0] == -1:
-                    buttonColor = 'white'
+                    if self.mainButtonFound[col]:
+                        #if the button has been found before he keeps his color but you are able to change it if you want
+                        buttonColor = self.colorArray[self.mainColorArray[col]]
+                        self.buttonArray[row][col][0] = self.mainColorArray[col]
+                    else:
+                        buttonColor = 'white'
                 self.pin = tk.Button(self, bg = buttonColor )
                 self.pin["text"] = str(row) + " " + str(col)
                 self.pin["command"] = self.changeColor(self.pin, row, col)
