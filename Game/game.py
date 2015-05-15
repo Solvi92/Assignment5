@@ -5,9 +5,9 @@ import socketserver
 
 gameType = 'onePlayer'
 isHost = False
-isClient = False
+isClient = True
 
-#server
+
 class MyUDPHandler(socketserver.BaseRequestHandler):
     def handle(self):
         data = self.request[0].strip()
@@ -30,33 +30,41 @@ def server(data):
         print("Sent:     {}".format(data))
         print("Received: {}".format(received))
 
-"""
-while True:
-    sock.sendall(bytes('smurf\n', 'utf-8'))
-    received = str(sock.recv(1024), "utf-8")
+
 # server end
-"""
+
 class Menu(tk.Frame):
     def __init__(self, master=None):
         tk.Frame.__init__(self, master)
-        self.game = None
+
         self.button = tk.Button(self, text="One Player",
                                 command=self.onePlayer)
         self.button.pack(side="top")
-        self.button = tk.Button(self, text="Two Player",
+        self.host = tk.Button(self, text="Host",
                                 command=self.twoPlayer)
-        self.button.pack(side="top")
+        self.host.pack(side="bottom", fill='both')
+        self.gameArray = []
+        self.master.geometry("245x150+300+300")
+        self.master.title('Mastermind 3000')
         self.pack()
 
     def onePlayer(self):
-        if not self.game == None:
-            self.game.destroy()
+        try:
+            if self.gameArray:
+                self.gameArray.pop().master.destroy()
+        except:
+            pass
         gameType = 'onePlayer'
-        self.game = Game(master=tk.Tk())
+        self.gameArray.append(Game(master=tk.Tk()))
 
     def twoPlayer(self):
+        try:
+            if self.gameArray:
+                self.gameArray.pop().master.destroy()
+        except:
+            pass
         gameType = 'twoPlayer'
-        self.game = Game(master=tk.Tk())
+        self.gameArray.append(Game(master=tk.Tk()))
 
 class Game(tk.Frame):
     def __init__(self, master=None):
@@ -68,6 +76,8 @@ class Game(tk.Frame):
         self.mainButtonFound = [0,0,0,0]
         self.currentRow = 0 # turn counter
         self.colorArray = ['yellow','red','green','blue','purple'] # possible colors
+        self.master.geometry("245x420+300+300")
+
         self.pack()
         self.createMainRow()
         self.createRows()
@@ -184,5 +194,5 @@ class Game(tk.Frame):
             print(self.mainColorArray[row][0])
 
 root = tk.Tk()
-game = Menu(master=root)
-game.mainloop()
+menu = Menu(master=root)
+menu.mainloop()
