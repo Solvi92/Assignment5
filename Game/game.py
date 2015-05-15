@@ -41,8 +41,11 @@ class Menu(tk.Frame):
                                 command=self.onePlayer)
         self.button.pack(side="top")
         self.host = tk.Button(self, text="Host",
-                                command=self.twoPlayer)
+                                command=self.host)
         self.host.pack(side="bottom", fill='both')
+        self.client = tk.Button(self, text="Client",
+                                command=self.client)
+        self.client.pack(side="bottom", fill='both')
         self.gameArray = []
         self.master.geometry("245x150+300+300")
         self.master.title('Mastermind 3000')
@@ -57,13 +60,28 @@ class Menu(tk.Frame):
         gameType = 'onePlayer'
         self.gameArray.append(Game(master=tk.Tk()))
 
-    def twoPlayer(self):
+    def host(self):
+        global isHost
+        global isClient
         try:
             if self.gameArray:
                 self.gameArray.pop().master.destroy()
         except:
             pass
-        gameType = 'twoPlayer'
+        isHost = True
+        isClient = False
+        self.gameArray.append(Game(master=tk.Tk()))
+
+    def client(self):
+        global isClient
+        global isHost
+        isClient = True
+        isHost = False
+        try:
+            if self.gameArray:
+                self.gameArray.pop().master.destroy()
+        except:
+            pass
         self.gameArray.append(Game(master=tk.Tk()))
 
 class Game(tk.Frame):
