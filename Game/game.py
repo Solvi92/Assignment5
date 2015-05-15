@@ -4,24 +4,33 @@ import socket
 import socketserver
 
 gameType = 'onePlayer'
-isHost = True
-isClient = True
-"""
+isHost = False
+isClient = False
+
 #server
-class MyTCPHandler(socketserver.BaseRequestHandler):
+class MyUDPHandler(socketserver.BaseRequestHandler):
     def handle(self):
-        self.data = self.request.recv(1024).strip()
+        data = self.request[0].strip()
+        socket = self.request[1]
         print("{} wrote:".format(self.client_address[0]))
-        print(self.data)
-        self.request.sendall(self.data.upper())
+        print(data)
+        socket.sendto(data.upper(), self.client_address)
 
-if isHost:
-    server = socketserver.TCPServer(('localhost', 1337), MyTCPHandler)
-    server.serve_forever()
-else:
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.connect(('localhost', 1337))
+def server(data):
+    HOST, PORT = "localhost", 1337
+    if isHost:
+        if __name__== "__main__":
+            server = socketserver.UDPServer((HOST, PORT), MyUDPHandler)
+            server.serve_forever()
+    else:#CLIENT
+        data = data
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        sock.sendto(bytes(data, "utf-8"), (HOST, PORT))
+        received = str(sock.recv(1024), "utf-8")
+        print("Sent:     {}".format(data))
+        print("Received: {}".format(received))
 
+"""
 while True:
     sock.sendall(bytes('smurf\n', 'utf-8'))
     received = str(sock.recv(1024), "utf-8")
