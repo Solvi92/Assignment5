@@ -10,7 +10,7 @@ from collections import Counter
 
 gameType = 'onePlayer'
 isHost = False
-isClient = True
+isClient = False
 serverData = ''
 clientData = ''
 
@@ -64,7 +64,7 @@ class Menu(tk.Frame):
     def __init__(self, master=None):
         tk.Frame.__init__(self, master)
         self.master.title('Mastermind 3000')
-        self.background = tk.PhotoImage(file=r"C:\Users\Lenovo\desktop\ble.gif")
+        self.background = tk.PhotoImage(file=r"ble.gif")
         self.background_label = tk.Label(self.master,image=self.background)
         self.background_label.place(x=0, y=0, relwidth=1, relheight=1)
         self.button = tk.Button(self.master, text="One Player",bg='green',
