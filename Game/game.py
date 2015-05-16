@@ -2,6 +2,7 @@ import tkinter as tk
 import random
 import socket
 import socketserver
+from collections import Counter
 
 gameType = 'onePlayer'
 isHost = False
@@ -93,7 +94,8 @@ class Game(tk.Frame):
         self.buttonArray = [[[-1,1] for x in range(4)] for x in range(12)] # the game board which is 4x12
         self.mainColorArray = [[-1,1] for x in range(4)] # This is where the correct colors is displayed or selected
         self.mainButtons = []
-        self.mainButtonFound = [0,0,0,0]
+        self.correctPins = [[[] for x in range(4)] for x in range(12)]
+        self.pinManager = [0,0,0,0]
         self.currentRow = 0 # turn counter
         self.colorArray = ['yellow','red','green','blue','purple'] # possible colors
         self.master.geometry("245x420+300+300")
@@ -124,7 +126,8 @@ class Game(tk.Frame):
         print('Game Over, you loose') # needs to be implemented
 
     def winner(self):
-        print('You Win!')
+        for x in range(4):
+            self.mainButtons[x].configure(bg = self.colorArray[self.mainColorArray[x][0]])
 
     def nextRound(self,button):
         def nextRoundCallback():
@@ -138,12 +141,22 @@ class Game(tk.Frame):
                     canContinue = False
             if canContinue:
                 hasWon = True
+                #Dict for the occurrences of colors in the mainColorArray
+                colors = Counter([x[0] for x in self.mainColorArray])
+                #Checking for the correct color and position
                 for x in range(4):
-                    if self.buttonArray[self.currentRow][x][0] == self.mainColorArray[x][0]:
-                        self.mainButtons[x].configure(bg = self.colorArray[self.mainColorArray[x][0]])
-                        self.mainButtonFound[x] = 1
+                    if self.buttonArray[self.currentRow][x][0] == self.mainColorArray[x][0] and not colors[self.buttonArray[self.currentRow][x][0]] == 0:
+                        self.pinManager[x] = 1
+                        colors[self.buttonArray[self.currentRow][x][0]] -= 1
                     else:
                         hasWon = False
+                #Checking for correct color but wrong position
+                for x in range(4):
+                    for i in range(4):
+                        if self.buttonArray[self.currentRow][x][0] == self.mainColorArray[i][0]:
+                            if not self.pinManager[x] == 1 and not colors[self.buttonArray[self.currentRow][x][0]] == 0:
+                                self.pinManager[x] = 2
+                                colors[self.buttonArray[self.currentRow][x][0]] -= 1
                     self.buttonArray[self.currentRow][x][1] = 0 # make the row that was just finished inactive
                 if hasWon:
                     self.winner()
@@ -151,26 +164,38 @@ class Game(tk.Frame):
             if self.currentRow >= 12:
                 self.gameOver()
             else:
+                self.changeCorrectPins()
                 self.createRows()
         return nextRoundCallback
+
+    def changeCorrectPins(self):
+        for row in range(self.currentRow - 1,self.currentRow):
+            for col in range(4):
+                if sorted(self.pinManager,reverse=True)[col] == 1:
+                    self.correctPins[row][col][0].configure(bg = 'green')
+                elif sorted(self.pinManager,reverse=True)[col] == 2:
+                    self.correctPins[row][col][0].configure(bg = 'black')
+        self.pinManager = [0,0,0,0]
 
     def createRows(self):
         for row in range(self.currentRow,self.currentRow + 1):
             for col in range(4):
                 buttonColor = self.colorArray[self.buttonArray[row][col][0]]
                 if self.buttonArray[row][col][0] == -1:
-                    if self.mainButtonFound[col]:
-                        #if the button has been found before he keeps his color but you are able to change it if you want
-                        buttonColor = self.colorArray[self.mainColorArray[col][0]]
-                        self.buttonArray[row][col][0] = self.mainColorArray[col][0]
-                    else:
                         buttonColor = 'white'
                 if isHost:
                     self.buttonArray[self.currentRow][col][1] = 0
+                #Create the main buttons
                 self.pin = tk.Button(self, bg = buttonColor )
                 self.pin["text"] = '     '
                 self.pin["command"] = self.changeColor(self.pin, row, col)
                 self.pin.grid(row=row,column=col,padx=3,pady=3)
+
+                #Create the correct buttons
+                self.pinC = tk.Button(self, bg = 'white')
+                self.pinC['text'] = ''
+                self.pinC.grid(row=row, column=col+4, padx=1, pady=1)
+                self.correctPins[row][col].append(self.pinC)
 
     def hostSubmits(self):
         def callback():
@@ -193,7 +218,7 @@ class Game(tk.Frame):
             self.submit["command"] = self.hostSubmits()
         else:
             self.submit["command"] = self.nextRound(self.submit)
-        self.submit.grid(row=12, column = 5)
+        self.submit.grid(row=12, column = 9)
 
     def changeMainColor(self, button, row):
         #changes the color of the 'button' after a click event is created
