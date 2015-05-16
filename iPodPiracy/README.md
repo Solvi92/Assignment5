@@ -1,11 +1,12 @@
 
-## Imdb crawler
-Imdb crawler goes through the top 250 movies on www.imdb.com and returns the occurences of actors in the movies
+## iPod Piracy
+
+### Purpose
+Creating folder structure and file names from meta data in sound files
 
 ### Description
 
-**How to run imdb crawler**  
+**How to run iPod Piracy**  
  
-1. Run imdb.py
-2. Input the year from e.g. 2000 will give you from the year 2000 to current year
-3. If you want e.g. the top 20 actors in the list input 20 if you want all input 0
+1. Run iPodPiracy.py
+2. Follow the instructions of the program
