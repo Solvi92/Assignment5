@@ -1,4 +1,5 @@
 import tkinter as tk
+import tkinter.messagebox
 import random
 import socket
 import socketserver
@@ -62,19 +63,20 @@ def startServer():
 class Menu(tk.Frame):
     def __init__(self, master=None):
         tk.Frame.__init__(self, master)
-
-        self.button = tk.Button(self, text="One Player",
-                                command=self.onePlayer)
-        self.button.pack(side="top")
-        self.host = tk.Button(self, text="Host",
-                                command=self.host)
-        self.host.pack(side="bottom", fill='both')
-        self.client = tk.Button(self, text="Client",
-                                command=self.client)
-        self.client.pack(side="bottom", fill='both')
-        self.gameArray = []
-        self.master.geometry("245x150+300+300")
         self.master.title('Mastermind 3000')
+        self.background = tk.PhotoImage(file=r"C:\Users\Lenovo\desktop\ble.gif")
+        self.background_label = tk.Label(self.master,image=self.background)
+        self.background_label.place(x=0, y=0, relwidth=1, relheight=1)
+        self.button = tk.Button(self.master, text="One Player",bg='green',
+                                command=self.onePlayer).pack(fill='both',pady=(160,0),padx=(100,100))
+        self.host = tk.Button(self.master, text="Host",bg='green',
+                                command=self.host).pack(side="top", fill='both',padx=(100,100))
+        self.client = tk.Button(self.master, text="Client",bg='green',
+                                command=self.client).pack(side="top", fill='both',padx=(100,100))
+        self.gameArray = []
+
+
+        self.master.geometry("440x440+20+40")
         self.pack()
 
     def onePlayer(self):
@@ -128,6 +130,7 @@ class Game(tk.Frame):
         self.createMainRow()
         self.createRows()
         self.submitbutton()
+
         self.master.title('Mastermind 3000')
 
     def getRandomColorNumber(self):
@@ -147,12 +150,14 @@ class Game(tk.Frame):
         return colorCallback
 
     def gameOver(self):
-        print('Game Over, you loose') # needs to be implemented
+        tkinter.messagebox.showinfo('Mastermind','You Lose')
+        self.master.destroy()
 
     def winner(self):
         for x in range(4):
             self.mainButtons[x].configure(bg = self.colorArray[self.mainColorArray[x][0]])
-        print('You Win!')
+        tkinter.messagebox.showinfo('Mastermind','You Win')
+        self.master.destroy()
 
     def putClientDataInArray(self, data):
         data = ast.literal_eval(data)
@@ -199,9 +204,11 @@ class Game(tk.Frame):
                     self.buttonArray[self.currentRow][x][1] = 0 # make the row that was just finished inactive
                 if hasWon:
                     self.winner()
+                    return
                 self.currentRow += 1
             if self.currentRow >= 12:
                 self.gameOver()
+                return
             else:
                 print('Next Round')
                 self.changeCorrectPins()
