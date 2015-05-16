@@ -7,6 +7,7 @@ gameType = 'onePlayer'
 isHost = False
 isClient = True
 
+serverData = ''
 
 class MyUDPHandler(socketserver.BaseRequestHandler):
     def handle(self):
@@ -14,7 +15,7 @@ class MyUDPHandler(socketserver.BaseRequestHandler):
         socket = self.request[1]
         print("{} wrote:".format(self.client_address[0]))
         print(data)
-        socket.sendto(data.upper(), self.client_address)
+        socket.sendto(bytes(serverData, "utf-8"), self.client_address)
 
 def server(data):
     HOST, PORT = "localhost", 1337
@@ -23,14 +24,14 @@ def server(data):
             server = socketserver.UDPServer((HOST, PORT), MyUDPHandler)
             server.serve_forever()
     else:#CLIENT
+        global serverData
         data = data
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         sock.sendto(bytes(data, "utf-8"), (HOST, PORT))
         received = str(sock.recv(1024), "utf-8")
         print("Sent:     {}".format(data))
         print("Received: {}".format(received))
-
-
+        serverData = received
 # server end
 
 class Menu(tk.Frame):
@@ -56,20 +57,20 @@ class Menu(tk.Frame):
             if self.gameArray:
                 self.gameArray.pop().master.destroy()
         except:
-            pass
+            print('Something went wrong connecting the client')
         gameType = 'onePlayer'
         self.gameArray.append(Game(master=tk.Tk()))
 
     def host(self):
         global isHost
         global isClient
+        isHost = True
+        isClient = False
         try:
             if self.gameArray:
                 self.gameArray.pop().master.destroy()
         except:
-            pass
-        isHost = True
-        isClient = False
+            print('Something went wrong connecting the host')
         self.gameArray.append(Game(master=tk.Tk()))
 
     def client(self):
@@ -78,6 +79,7 @@ class Menu(tk.Frame):
         isClient = True
         isHost = False
         try:
+            server('from client')
             if self.gameArray:
                 self.gameArray.pop().master.destroy()
         except:
@@ -126,6 +128,10 @@ class Game(tk.Frame):
 
     def nextRound(self,button):
         def nextRoundCallback():
+            if isClient and not serverData == '':
+                for x in range(4):
+                    self.mainColorArray[x][0] = int(serverData[x])
+
             canContinue = True
             for x in range(4):
                 if self.buttonArray[self.currentRow][x][0] < 0:
@@ -168,12 +174,15 @@ class Game(tk.Frame):
 
     def hostSubmits(self):
         def callback():
+            global serverData
             #check if all pins are selected
             for x in range(4):
                 if self.mainColorArray[x][0] < 0:
                     return
             for x in range(4):
                 self.mainColorArray[x][1] = 0
+                serverData += str(self.mainColorArray[x][0])
+            server('')
             #send client the colors
         return callback
 
