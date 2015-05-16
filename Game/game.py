@@ -150,13 +150,19 @@ class Game(tk.Frame):
         return colorCallback
 
     def gameOver(self):
-        tkinter.messagebox.showinfo('Mastermind','You Lose')
+        if isHost:
+            tkinter.messagebox.showinfo('Mastermind','You Win')
+        if isClient:
+            tkinter.messagebox.showinfo('Mastermind','You Lose')
         self.master.destroy()
 
     def winner(self):
         for x in range(4):
             self.mainButtons[x].configure(bg = self.colorArray[self.mainColorArray[x][0]])
-        tkinter.messagebox.showinfo('Mastermind','You Win')
+        if isClient:
+            tkinter.messagebox.showinfo('Mastermind','You Win')
+        if isHost:
+            tkinter.messagebox.showinfo('Mastermind','You Lose')
         self.master.destroy()
 
     def putClientDataInArray(self, data):
