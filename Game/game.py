@@ -2,37 +2,59 @@ import tkinter as tk
 import random
 import socket
 import socketserver
+import threading
+import time
 
 gameType = 'onePlayer'
 isHost = False
 isClient = True
 
 serverData = ''
-
-class MyUDPHandler(socketserver.BaseRequestHandler):
+#server
+class ThreadedTCPRequestHandler(socketserver.BaseRequestHandler):
     def handle(self):
-        data = self.request[0].strip()
-        socket = self.request[1]
-        print("{} wrote:".format(self.client_address[0]))
-        print(data)
-        socket.sendto(bytes(serverData, "utf-8"), self.client_address)
-
-def server(data):
-    HOST, PORT = "localhost", 1337
-    if isHost:
-        if __name__== "__main__":
-            server = socketserver.UDPServer((HOST, PORT), MyUDPHandler)
-            server.serve_forever()
-    else:#CLIENT
         global serverData
-        data = data
-        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        sock.sendto(bytes(data, "utf-8"), (HOST, PORT))
-        received = str(sock.recv(1024), "utf-8")
-        print("Sent:     {}".format(data))
-        print("Received: {}".format(received))
-        serverData = received
-# server end
+        data = str(self.request.recv(1024), 'ascii')
+        cur_thread = threading.current_thread()
+        response = bytes(serverData, 'utf-8')
+        self.request.sendall(response)
+        print('data:', data)
+        serverData = data
+        print('response:', response)
+
+class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
+    pass
+
+def serverClient(ip, port, message):
+    global serverData
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.connect((ip, port))
+    try:
+        print('sending:', message)
+        sock.sendall(bytes(message, 'ascii'))
+        response = str(sock.recv(1024), 'ascii')
+        if response:
+            serverData = response
+        print("Received: {}".format(response))
+    finally:
+        sock.close()
+
+def startServer():
+    HOST, PORT = "localhost", 1338
+
+    server = ThreadedTCPServer((HOST, PORT), ThreadedTCPRequestHandler)
+    ip, port = server.server_address
+
+    # Start a thread with the server -- that thread will then start one
+    # more thread for each request
+    server_thread = threading.Thread(target=server.serve_forever)
+    # Exit the server thread when the main thread terminates
+    server_thread.daemon = True
+    server_thread.start()
+    print("Server loop running in thread:", server_thread.name)
+
+    #server.shutdown()
+
 
 class Menu(tk.Frame):
     def __init__(self, master=None):
@@ -71,6 +93,7 @@ class Menu(tk.Frame):
                 self.gameArray.pop().master.destroy()
         except:
             print('Something went wrong connecting the host')
+        startServer()
         self.gameArray.append(Game(master=tk.Tk()))
 
     def client(self):
@@ -79,7 +102,6 @@ class Menu(tk.Frame):
         isClient = True
         isHost = False
         try:
-            server('from client')
             if self.gameArray:
                 self.gameArray.pop().master.destroy()
         except:
@@ -128,6 +150,8 @@ class Game(tk.Frame):
 
     def nextRound(self,button):
         def nextRoundCallback():
+            serverClient('localhost', 1338, str(self.buttonArray) + str(self.currentRow))
+            print('serverData:', serverData)
             if isClient and not serverData == '':
                 for x in range(4):
                     self.mainColorArray[x][0] = int(serverData[x])
@@ -182,8 +206,9 @@ class Game(tk.Frame):
             for x in range(4):
                 self.mainColorArray[x][1] = 0
                 serverData += str(self.mainColorArray[x][0])
-            server('')
+            serverClient('localhost', 1338, "hello from host")
             #send client the colors
+
         return callback
 
     def submitbutton(self):
