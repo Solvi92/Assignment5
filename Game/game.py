@@ -11,6 +11,7 @@ from collections import Counter
 gameType = 'onePlayer'
 isHost = False
 isClient = False
+isOnePlayer = False
 serverData = ''
 clientData = ''
 
@@ -80,12 +81,14 @@ class Menu(tk.Frame):
         self.pack()
 
     def onePlayer(self):
+        global isOnePlayer
         try:
             if self.gameArray:
                 self.gameArray.pop().master.destroy()
         except:
             print('Something went wrong connecting the client')
         gameType = 'onePlayer'
+        isOnePlayer = True
         self.gameArray.append(Game(master=tk.Tk()))
 
     def host(self):
@@ -150,19 +153,29 @@ class Game(tk.Frame):
         return colorCallback
 
     def gameOver(self):
+        global isOnePlayer
+        for x in range(4):
+            self.mainButtons[x].configure(bg = self.colorArray[self.mainColorArray[x][0]])
         if isHost:
             tkinter.messagebox.showinfo('Mastermind','You Win')
         if isClient:
             tkinter.messagebox.showinfo('Mastermind','You Lose')
+        if isOnePlayer:
+            tkinter.messagebox.showinfo('Mastermind','You Lose')
+            isOnePlayer = False
         self.master.destroy()
 
     def winner(self):
+        global isOnePlayer
         for x in range(4):
             self.mainButtons[x].configure(bg = self.colorArray[self.mainColorArray[x][0]])
         if isClient:
             tkinter.messagebox.showinfo('Mastermind','You Win')
         if isHost:
             tkinter.messagebox.showinfo('Mastermind','You Lose')
+        if isOnePlayer:
+            tkinter.messagebox.showinfo('Mastermind','You Win')
+            isOnePlayer = False
         self.master.destroy()
 
     def putClientDataInArray(self, data):
