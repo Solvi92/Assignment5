@@ -23,9 +23,7 @@ class ThreadedTCPRequestHandler(socketserver.BaseRequestHandler):
         cur_thread = threading.current_thread()
         response = bytes(serverData, 'utf-8')
         self.request.sendall(response)
-        print('data:', data)
         clientData = data
-        print('response:', response)
 
 class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
     pass
@@ -35,12 +33,10 @@ def serverClient(ip, port, message):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.connect((ip, port))
     try:
-        print('sending:', message)
         sock.sendall(bytes(message, 'ascii'))
         response = str(sock.recv(1024), 'ascii')
         if not response == 'dummy':
             serverData = response
-        print("Received: {}".format(response))
     finally:
         sock.close()
 
@@ -56,7 +52,7 @@ def startServer():
     # Exit the server thread when the main thread terminates
     server_thread.daemon = True
     server_thread.start()
-    print("Server loop running in thread:", server_thread.name)
+    #print("Server loop running in thread:", server_thread.name)
 
     #server.shutdown()
 
@@ -191,7 +187,6 @@ class Game(tk.Frame):
         def nextRoundCallback():
             if isClient:
                 serverClient('localhost', 1338, str(self.buttonArray) + str(self.currentRow))
-            print('serverData:', serverData)
             if isClient and not serverData == '':
                 for x in range(4):
                     self.mainColorArray[x][0] = int(serverData[x])
@@ -205,8 +200,6 @@ class Game(tk.Frame):
                 #Dict for the occurrences of colors in the mainColorArray
                 colors = Counter([x[0] for x in self.mainColorArray])
                 #Checking for the correct color and position
-                print(self.mainColorArray)
-                print(self.buttonArray[self.currentRow])
                 for x in range(4):
                     if self.buttonArray[self.currentRow][x][0] == self.mainColorArray[x][0] and not colors[self.buttonArray[self.currentRow][x][0]] == 0:
                         self.pinManager[x] = 1
@@ -229,7 +222,6 @@ class Game(tk.Frame):
                 self.gameOver()
                 return
             else:
-                print('Next Round')
                 self.changeCorrectPins()
                 self.createRows()
         return nextRoundCallback
@@ -276,16 +268,12 @@ class Game(tk.Frame):
                 serverData += str(self.mainColorArray[x][0])
             #send client the colors
             serverClient('localhost', 1338, 'dummy')
-            print('calling nextRound')
             #get game board from client
-            print('waiting for clientData...')
+            print('waiting for the client to send data...')
             while clientData == '' or clientData == 'dummy':
                 time.sleep(2)
-            print('clientData is here:')
             data, self.currentRow = self.getCorrectData(clientData)
             self.putClientDataInArray(data)
-            print(data)
-            print(self.currentRow)
             self.putClientDataInArray(data)
             self.createRows()
             tmp = self.nextRound()
@@ -326,7 +314,6 @@ class Game(tk.Frame):
             self.pin["text"] = '     '
             self.pin.grid(row=12, column=row,padx=3,pady=3)
             self.mainButtons.append(self.pin)
-            print(self.mainColorArray[row][0])
 
 root = tk.Tk()
 menu = Menu(master=root)
